@@ -125,14 +125,13 @@ public class ReportingServiceImpl implements ReportingService {
 
 	public String transformExcelToJSON(String data) {
 		// FileInputStream excelData = new FileInputStream(data.trim())
-//		Replaces for data testing passed by main method
+//		Replaces for path to be InputStream friendly
 		data = data.replace("\\\\", "\\");
 		data = data.replace("\"", "");
 		data = data.replace("\\", "/");
-		//String to store final data
+//		String to store final data
 		String dataUnformated ="";
-		log.info(data);
-//		log.info(formatedPath);
+
 		try (FileInputStream excelData = new FileInputStream(data)) {
 			// InputStream newData = new ByteArrayInputStream(data.getBytes());
 			// Create the workbook Object to work with the ByteArrayInputStream data
@@ -154,18 +153,6 @@ public class ReportingServiceImpl implements ReportingService {
 
 				// Generate String with JSON Format
 				dataUnformated = getStringFromList(currentSheetData);
-				// Generate document name from sheet name
-				// String jsonFileName = sheetName + ".json";
-
-				// Create file from data just in case the CustomApp is Sink
-//				try (FileOutputStream jsonStream = new FileOutputStream(pathForFileToWrite + documentName + ".json")) {
-//
-//					jsonStream.write(jsonString.getBytes());
-//					
-//					jsonStream.close();
-//
-//					log.info("File has been created");
-//				}
 
 			}
 			workbook.close();
@@ -174,6 +161,7 @@ public class ReportingServiceImpl implements ReportingService {
 			// TODO Auto-generated catch block
 			log.info(e.getMessage());
 		}
+		//Json data return
 		return dataUnformated;
 	}
 
