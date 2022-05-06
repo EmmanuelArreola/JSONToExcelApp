@@ -1,0 +1,26 @@
+{
+	"groups": [
+		{
+			"name": "reporting.params",
+			"type": "mx.com.sixdelta.stream.bean.ReportingProperties",
+			"sourceType": "mx.com.sixdelta.stream.bean.ReportingProperties"
+		}
+	],
+	"properties": [
+		{
+			"name": "reporting.params.sheetName",
+			"type": "java.lang.String",
+			"description": "Contains the name of the sheet for the method JSonToExcel",
+			"sourceType": "mx.com.sixdelta.stream.bean.ReportingProperties",
+			"defaultValue":"First-Sheet"
+		},
+		{
+			"name": "reporting.params.transformTo",
+			"type": "java.lang.String",
+			"description": "Indicates the type of input and the resultant document",
+			"sourceType": "mx.com.sixdelta.stream.bean.ReportingProperties",
+			"defaultValue":"ExcelToJson"
+		}
+	],
+	"hints": []
+}
