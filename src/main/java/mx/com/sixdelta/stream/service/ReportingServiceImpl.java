@@ -11,21 +11,17 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Scanner;
-
-import javax.servlet.ServletContext;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.poi.openxml4j.opc.OPCPackage;
+import mx.com.sixdelta.stream.bean.ExceptionPath;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.ResourceUtils;
 
 public class ReportingServiceImpl implements ReportingService {
 
@@ -79,9 +75,6 @@ public class ReportingServiceImpl implements ReportingService {
 					}
 				}
 
-				// Testing for refactor
-				log.info("------------------------------workbook------------------------");
-
 				File temp;
 
 				try {
@@ -95,36 +88,29 @@ public class ReportingServiceImpl implements ReportingService {
 					}
 					BufferedReader bfile = new BufferedReader(new FileReader(temp));
 					String bline = bfile.readLine();
-//					log.info(bfile.readLine());
-					log.info("----------Antes del reader");
+					
 					while (bline != null) {
 						dataUnformatted.append(bline);
-//						System.out.println(bline);
 						bline = bfile.readLine();
 
 					}
-					log.info("----------Despues del reader");
-//					reader.close();
-					// temp.deleteOnExit();
+					bfile.close();
 
 				} catch (IOException e) {
-					e.printStackTrace();
+					throw new ExceptionPath("Error during the creation of the temporary File" + e.getMessage());
 				}
 
 			} else {
-				log.info("There is no key values");
-				return "There was a problem";
-
+				throw new ExceptionPath("String received is not on correct JSON format");
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ExceptionPath("Data received is not legible by the method getBytes() /n" + e.getMessage());
 		}
 		return dataUnformatted.toString();
 	}
 
 	public String transformExcelToJSON(String data) {
-		// FileInputStream excelData = new FileInputStream(data.trim())
 //		Replaces for path to be InputStream friendly
 		data = data.replace("\\\\", "\\");
 		data = data.replace("\"", "");
@@ -158,8 +144,7 @@ public class ReportingServiceImpl implements ReportingService {
 			workbook.close();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			log.info(e.getMessage());
+			throw new ExceptionPath("Error while reading data from the String received: " + e.getMessage());
 		}
 		//Json data return
 		return dataUnformated;
@@ -170,8 +155,6 @@ public class ReportingServiceImpl implements ReportingService {
 		List<List<String>> dataFromSheet = new ArrayList<List<String>>();
 		int firstRowNum = sheet.getFirstRowNum();
 		int lastRowNum = sheet.getLastRowNum();
-//
-//		 log.info("Numero inicial de columnas" + firstRowNum + " Numero final decolumnas" + lastRowNum);
 
 		if (lastRowNum > 0) {
 			for (int index = firstRowNum; index < lastRowNum - 1; index++) {
@@ -185,8 +168,6 @@ public class ReportingServiceImpl implements ReportingService {
 				for (int data = firstCellNum; data < lastCellNum ; data++) {
 
 					Cell cell = currentRow.getCell(data);
-//					 log.info("Index: " + data);
-//					 log.info(cell.toString());
 					rowDataList.add(cell.toString());
 				}
 				dataFromSheet.add(rowDataList);

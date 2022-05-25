@@ -31,10 +31,10 @@ public class ReportingStream{
 			ReportingService reporter = new ReportingServiceImpl();
 			log.info("/**************Report Start***************");
 				if (reportingProperties.getTransformTo().equals(ExcelToJsonValue)) {
-					log.info("Excel a Json creandose");
+					log.info("Excel to Json building");
 					reporter.transformExcelToJSON(data);
 				} else if (reportingProperties.getTransformTo().equals(JsonToExcelValue)) {
-					log.info("Json a excel creandose");
+					log.info("Json to excel building");
 					reporter.transformJSONtoExcel(data, reportingProperties.getSheetName());
 				}
 
