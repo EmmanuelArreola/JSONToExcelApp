@@ -1,0 +1,12 @@
+{"properties":[
+	{
+		"name":"reporting.params.sheetName",
+		"type":"java.lang.String",
+		"description":"To name the sheet that will create"
+	},
+	{
+		"name":"reporting.params.transformTo",
+		"type":"java.lang.String",
+		"description":"Indicates the data type to be transformed: JSONtoExcel or ExcelToJSON"
+	}
+]}
