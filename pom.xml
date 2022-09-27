@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>JsonToExcelSink</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.2</version>
 	<name>JsonToExcelSink</name>
 	<description>Sink to write an Excel from String data</description>
 	<properties>
@@ -110,7 +110,7 @@
 						</exclude>
 					</excludes>
 					<image>
-						<name>n3xtgencloud/json-excel-processor:0.0.1</name>
+						<name>n3xtgencloud/json-excel-processor:0.0.2</name>
 					</image>
 				</configuration>
 			</plugin>

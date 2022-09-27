@@ -1,5 +1,7 @@
 package mx.com.sixdelta.stream.service;
 
+import java.io.File;
+
 public interface ReportingService {
 	/**
 	 * 
@@ -9,7 +11,7 @@ public interface ReportingService {
 	 * @param data information to be transformed
 	 * @return return the data transformed into data for EXCEL
 	 */
-	public String transformJSONtoExcel(String data, String sheetName);
+	public byte[] transformJSONtoExcel(String data, String sheetName);
 	/**
 	 * 
 	 * Method definition to transform from an Excel document

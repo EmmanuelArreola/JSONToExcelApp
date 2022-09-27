@@ -2,12 +2,14 @@ package mx.com.sixdelta.stream.service;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,34 +30,42 @@ public class ReportingServiceImpl implements ReportingService {
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ReportingServiceImpl.class);
 
 	@Override
-	public String transformJSONtoExcel(String data, String sheetName) {
+	public byte[] transformJSONtoExcel(String data, String sheetName) {
 
-		StringBuilder dataUnformatted = new StringBuilder();
-
+//		Byte array to return final data
+		byte[] dataTransformedAsBytes;
+//		Add if necessary [] this are needed to correct run through JSON
+		String firstCharacter = data.substring(0, 1);
+		if (!firstCharacter.equals("[")) {
+			data = "[" + data + "]";
+		}
+//		Start of the main method
+		
+//		Reading data and creating Inputstream to read it through JsonNode so it receive the XSSFWorkbook Object
 		try (InputStream newData = new ByteArrayInputStream(data.getBytes())) {
 
 			JsonNode jsonTree = new ObjectMapper().readTree(newData);
 
 			if (!jsonTree.isNull()) {
 
-				log.info("Data recieved: {\n" + jsonTree + "\n}");
-
+				log.info("Data recieved: " + jsonTree);
 				XSSFWorkbook workbook = new XSSFWorkbook();
 				XSSFSheet sheet = workbook.createSheet(sheetName);
-
+//		Iterating through elements of the JSON tree
 				Iterator<JsonNode> elements = jsonTree.elements();
-				log.info(elements.toString());
+				log.info("Elements iterator" + elements.toString());
 				int rowCount = 0;
+//		Iterating through rows
 				while (elements.hasNext()) {
 					JsonNode element = elements.next();
 					int colCount = 0;
-					log.info(elements.toString());
+					log.info("Element alone: " + element.toString());
 					if (!element.isEmpty()) {
-
 						if (rowCount == 0) {
 							Row row = sheet.createRow(rowCount++);
 							int headerCount = 0;
 							Iterator<String> fieldNames = element.fieldNames();
+//		Iterating through cells
 							while (fieldNames.hasNext()) {
 								String value = fieldNames.next();
 								log.info("The header value is: " + value);
@@ -68,33 +78,22 @@ public class ReportingServiceImpl implements ReportingService {
 						Iterator<JsonNode> values = element.elements();
 						while (values.hasNext()) {
 							String value = values.next().asText();
-							log.info("The header value is: " + value);
+							log.info("The content value is: " + value);
 							Cell cell = row.createCell(colCount++);
 							cell.setCellValue(value);
 						}
 					}
 				}
 
-				File temp;
-
+//		Transforming Workbook object to byte array
+				ByteArrayOutputStream bos = new ByteArrayOutputStream();
 				try {
-					temp = File.createTempFile("temporal", ".txt");
-//					path + documentName + ".xlsx"
-					log.info(temp.getAbsolutePath());
-
-					try (FileOutputStream outputStream = new FileOutputStream(temp.getAbsolutePath())) {
-						workbook.write(outputStream);
-						workbook.close();
+					workbook.write(bos);
+					workbook.close();
+					{
+						bos.close();
 					}
-					BufferedReader bfile = new BufferedReader(new FileReader(temp));
-					String bline = bfile.readLine();
-					
-					while (bline != null) {
-						dataUnformatted.append(bline);
-						bline = bfile.readLine();
-
-					}
-					bfile.close();
+					dataTransformedAsBytes = bos.toByteArray();
 
 				} catch (IOException e) {
 					throw new ExceptionPath("Error during the creation of the temporary File" + e.getMessage());
@@ -107,7 +106,8 @@ public class ReportingServiceImpl implements ReportingService {
 		} catch (Exception e) {
 			throw new ExceptionPath("Data received is not legible by the method getBytes() /n" + e.getMessage());
 		}
-		return dataUnformatted.toString();
+//		returning final data as byte array
+		return dataTransformedAsBytes;
 	}
 
 	public String transformExcelToJSON(String data) {
@@ -116,7 +116,7 @@ public class ReportingServiceImpl implements ReportingService {
 		data = data.replace("\"", "");
 		data = data.replace("\\", "/");
 //		String to store final data
-		String dataUnformated ="";
+		String dataUnformated = "";
 
 		try (FileInputStream excelData = new FileInputStream(data)) {
 			// InputStream newData = new ByteArrayInputStream(data.getBytes());
@@ -146,7 +146,7 @@ public class ReportingServiceImpl implements ReportingService {
 		} catch (IOException e) {
 			throw new ExceptionPath("Error while reading data from the String received: " + e.getMessage());
 		}
-		//Json data return
+		// Json data return
 		return dataUnformated;
 	}
 
@@ -165,7 +165,7 @@ public class ReportingServiceImpl implements ReportingService {
 				int firstCellNum = currentRow.getFirstCellNum();
 				int lastCellNum = currentRow.getLastCellNum();
 
-				for (int data = firstCellNum; data < lastCellNum ; data++) {
+				for (int data = firstCellNum; data < lastCellNum; data++) {
 
 					Cell cell = currentRow.getCell(data);
 					rowDataList.add(cell.toString());

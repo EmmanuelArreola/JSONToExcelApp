@@ -1,13 +1,15 @@
 package mx.com.sixdelta.stream.bean;
 
-import java.util.function.Consumer;
+import java.io.File;
+import java.util.function.Function;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.Message;
+
 import mx.com.sixdelta.stream.service.ReportingService;
 import mx.com.sixdelta.stream.service.ReportingServiceImpl;
-import reactor.core.publisher.Flux;
 
 @EnableConfigurationProperties(ReportingProperties.class)
 @Configuration
@@ -23,23 +25,39 @@ public class ReportingStream{
 		this.reportingProperties = reportingProperties;
 	}
 
-	@Bean
-	public Consumer<Flux<String>> reportingService() throws ExceptionPath {
-		return xlsCreatorCnf -> xlsCreatorCnf.subscribe(data -> {
-			log.info(data);
-			
-			ReportingService reporter = new ReportingServiceImpl();
-			log.info("/**************Report Start***************");
-				if (reportingProperties.getTransformTo().equals(ExcelToJsonValue)) {
-					log.info("Excel to Json building");
-					reporter.transformExcelToJSON(data);
-				} else if (reportingProperties.getTransformTo().equals(JsonToExcelValue)) {
-					log.info("Json to excel building");
-					reporter.transformJSONtoExcel(data, reportingProperties.getSheetName());
-				}
-
-		});
-	}
-
+//	@Bean
+//	public Function<Message<?>, String> reportingService() throws ExceptionPath {
+//		return payload ->  {
+//			
+//			String Payload = new String((byte[])payload.getPayload());
+//			
+//			log.info("Payload: " + Payload);
+//			
+//			ReportingService reporter = new ReportingServiceImpl();
+//			log.info("/**************Report Start***************");
+//				if (reportingProperties.getTransformTo().equals(ExcelToJsonValue)) {
+//					log.info("Excel to Json building");
+//					return reporter.transformExcelToJSON(Payload);
+//				} else if (reportingProperties.getTransformTo().equals(JsonToExcelValue)) {
+//					log.info("Json to excel building");
+//					return reporter.transformJSONtoExcel(Payload, reportingProperties.getSheetName());
+//				} else {
+//					return "Not a correct value";
+//				}
+//		};
+//	}
 	
+	
+	@Bean
+	public Function<Message<?>, byte[]> reportingService() throws ExceptionPath {
+		return payload ->  {
+			byte[] data = new String("data").getBytes(); 
+			ReportingService reporter = new ReportingServiceImpl();
+			if(reportingProperties.getTransformTo().equals(JsonToExcelValue)){
+			return reporter.transformJSONtoExcel(new String((byte[])payload.getPayload()), reportingProperties.getSheetName());
+			}else {
+				return data;
+			}
+		};
+	}
 }
