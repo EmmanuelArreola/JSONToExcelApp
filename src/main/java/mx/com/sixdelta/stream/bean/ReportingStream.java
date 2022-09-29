@@ -1,6 +1,5 @@
 package mx.com.sixdelta.stream.bean;
 
-import java.io.File;
 import java.util.function.Function;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -24,38 +23,22 @@ public class ReportingStream{
 	public ReportingStream(ReportingProperties reportingProperties) {
 		this.reportingProperties = reportingProperties;
 	}
-
-//	@Bean
-//	public Function<Message<?>, String> reportingService() throws ExceptionPath {
-//		return payload ->  {
-//			
-//			String Payload = new String((byte[])payload.getPayload());
-//			
-//			log.info("Payload: " + Payload);
-//			
-//			ReportingService reporter = new ReportingServiceImpl();
-//			log.info("/**************Report Start***************");
-//				if (reportingProperties.getTransformTo().equals(ExcelToJsonValue)) {
-//					log.info("Excel to Json building");
-//					return reporter.transformExcelToJSON(Payload);
-//				} else if (reportingProperties.getTransformTo().equals(JsonToExcelValue)) {
-//					log.info("Json to excel building");
-//					return reporter.transformJSONtoExcel(Payload, reportingProperties.getSheetName());
-//				} else {
-//					return "Not a correct value";
-//				}
-//		};
-//	}
-	
 	
 	@Bean
 	public Function<Message<?>, byte[]> reportingService() throws ExceptionPath {
 		return payload ->  {
 			byte[] data = new String("data").getBytes(); 
+//			Starting main transforming method
 			ReportingService reporter = new ReportingServiceImpl();
+			log.info("\"/**************Report Start***************\"");
+//			Deciding method to decide which method to use
 			if(reportingProperties.getTransformTo().equals(JsonToExcelValue)){
-			return reporter.transformJSONtoExcel(new String((byte[])payload.getPayload()), reportingProperties.getSheetName());
-			}else {
+				return reporter.transformJSONtoExcel(new String((byte[])payload.getPayload()), reportingProperties.getSheetName());
+			}
+//			else if(reportingProperties.getTransformTo().equals(ExcelToJsonValue)) {
+//				return reporter.transformExcelToJSON((byte[])payload.getPayload());
+//			}
+			else {
 				return data;
 			}
 		};

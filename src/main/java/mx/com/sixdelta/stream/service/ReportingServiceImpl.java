@@ -28,6 +28,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class ReportingServiceImpl implements ReportingService {
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ReportingServiceImpl.class);
+	byte[] finalData;	
 
 	@Override
 	public byte[] transformJSONtoExcel(String data, String sheetName) {
@@ -111,42 +112,50 @@ public class ReportingServiceImpl implements ReportingService {
 	}
 
 	public String transformExcelToJSON(String data) {
+//		byte[] data
+		log.info(data);
+		log.info("Starting method Excel to JSON");
 //		Replaces for path to be InputStream friendly
 		data = data.replace("\\\\", "\\");
 		data = data.replace("\"", "");
 		data = data.replace("\\", "/");
 //		String to store final data
 		String dataUnformated = "";
+		log.info("Final URL" + dataUnformated);
+
 
 		try (FileInputStream excelData = new FileInputStream(data)) {
-			// InputStream newData = new ByteArrayInputStream(data.getBytes());
-			// Create the workbook Object to work with the ByteArrayInputStream data
+//			FileInputStream excelData = new FileInputStream(data)
+//			InputStream newData = new ByteArrayInputStream(data.getBytes());
+//			Create the workbook Object to work with the ByteArrayInputStream data
 
-			XSSFWorkbook workbook = new XSSFWorkbook(excelData);
+			XSSFWorkbook workbook = new XSSFWorkbook (excelData);
 
 			int totalSheetNumber = workbook.getNumberOfSheets();
 
 			for (int index = 0; index < totalSheetNumber; index++) {
 
-				// Get current sheet.
+//				 Get current sheet.
 				Sheet sheet = workbook.getSheetAt(index);
 
-				// Get sheet name
-				// String sheetName = sheet.getSheetName();
+//				 Get sheet name
+//				 String sheetName = sheet.getSheetName();
 
-				// Get Array Data from current sheet
+//				 Get Array Data from current sheet
 				List<List<String>> currentSheetData = getSheetDataList(sheet);
 
-				// Generate String with JSON Format
+//				Generate String with JSON Format
+//				finalData = getStringFromList(currentSheetData).getBytes();
 				dataUnformated = getStringFromList(currentSheetData);
-
 			}
 			workbook.close();
-
+			
 		} catch (IOException e) {
 			throw new ExceptionPath("Error while reading data from the String received: " + e.getMessage());
 		}
-		// Json data return
+//		JSON data return
+//		return finalData;
+		log.info("FINAL DATA:  " + dataUnformated);
 		return dataUnformated;
 	}
 
@@ -154,16 +163,20 @@ public class ReportingServiceImpl implements ReportingService {
 
 		List<List<String>> dataFromSheet = new ArrayList<List<String>>();
 		int firstRowNum = sheet.getFirstRowNum();
+		log.info("Number of Rows : "  + firstRowNum);
 		int lastRowNum = sheet.getLastRowNum();
+		log.info("Number of Rows : "  + lastRowNum);
 
-		if (lastRowNum > 0) {
-			for (int index = firstRowNum; index < lastRowNum - 1; index++) {
+		if (lastRowNum >= 0) {
+			for (int index = firstRowNum; index <= lastRowNum ; index++) {
 
 				List<String> rowDataList = new ArrayList<String>();
 				Row currentRow = sheet.getRow(index);
 
 				int firstCellNum = currentRow.getFirstCellNum();
+				log.info("Number of first Cell num: " + firstCellNum);
 				int lastCellNum = currentRow.getLastCellNum();
+				log.info("Number of last Cell num: " + lastCellNum);
 
 				for (int data = firstCellNum; data < lastCellNum; data++) {
 
@@ -192,7 +205,7 @@ public class ReportingServiceImpl implements ReportingService {
 					strBfr.append("\"" + headers.get(columnData) + "\":");
 					// Assigning data for each node considering if it's the last data node
 					if (columnData == dataString.get(index).size() - 1) {
-						// log.info(" " + dataString.get(index).size());
+						log.info(" " + dataString.get(index).size());
 						strBfr.append("\"" + dataString.get(index).get(columnData) + "\"\n");
 					} else
 						strBfr.append("\"" + dataString.get(index).get(columnData) + "\", \n");

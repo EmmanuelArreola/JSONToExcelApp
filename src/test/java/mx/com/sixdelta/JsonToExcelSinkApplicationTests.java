@@ -1,6 +1,5 @@
 package mx.com.sixdelta;
 
-import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,28 +41,40 @@ class JsonToExcelSinkApplicationTests {
 			+ "        \"port\": \"587\",\n" + "        \"user\": \"bahamut_jafet@hotmail.com\",\n"
 			+ "        \"password\": \"prueba\"\n" + "    }\n" + "";
 
-	byte[] mainResult = mainMethod.transformJSONtoExcel(testData, "Ejemplo");
+//	byte[] mainResult = mainMethod.transformJSONtoExcel(testData, "Ejemplo");
+	
+	String pathData = "C:/Users/6Delta/Documents/InputStreams/Testing.xlsx";
+	
+	String mainResultJSON = mainMethod.transformExcelToJSON(pathData);
 
 	@Test
 	void testEqualsResults() {
 		
 		
-		System.out.println( mainResult);
+//		System.out.println( mainResult);
+//		
+//		File temp;
+//		try {
+//			temp = File.createTempFile("temporal", ".xlsx");
+//			FileOutputStream outputStream = new FileOutputStream(temp);
+//					outputStream.write(mainResult);	
+//					
+//					System.out.println("Temporal bueno: " + temp.getAbsolutePath());
+//					outputStream.close();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+//		assertEquals(mainResult.toString(), new String("data").getBytes());
 		
-		File temp;
-		try {
-			temp = File.createTempFile("temporal", ".xlsx");
-			FileOutputStream outputStream = new FileOutputStream(temp);
-					outputStream.write(mainResult);	
-					
-					System.out.println("Temporal bueno: " + temp.getAbsolutePath());
-					outputStream.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		assertEquals(mainResult.toString(), new String("data").getBytes());
+		System.out.println("Resultado" + mainResultJSON);
+		assertEquals(mainResultJSON , "[{\"Data\":\"FinalData\"}]");
 	}
+	
+//	@Test
+//	void testEquals() {
+//
+//	}
 
 }
