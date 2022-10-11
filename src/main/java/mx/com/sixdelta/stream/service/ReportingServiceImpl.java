@@ -1,15 +1,9 @@
 package mx.com.sixdelta.stream.service;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,20 +22,20 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class ReportingServiceImpl implements ReportingService {
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ReportingServiceImpl.class);
-	byte[] finalData;	
+	byte[] finalData;
 
 	@Override
 	public byte[] transformJSONtoExcel(String data, String sheetName) {
 
 //		Byte array to return final data
 		byte[] dataTransformedAsBytes;
-//		Add if necessary [] this are needed to correct run through JSON
+//		Add if necessary [], this are needed to correct run through JSON
 		String firstCharacter = data.substring(0, 1);
 		if (!firstCharacter.equals("[")) {
 			data = "[" + data + "]";
 		}
 //		Start of the main method
-		
+
 //		Reading data and creating Inputstream to read it through JsonNode so it receive the XSSFWorkbook Object
 		try (InputStream newData = new ByteArrayInputStream(data.getBytes())) {
 
@@ -111,25 +105,13 @@ public class ReportingServiceImpl implements ReportingService {
 		return dataTransformedAsBytes;
 	}
 
-	public String transformExcelToJSON(String data) {
-//		byte[] data
-		log.info(data);
+	public byte[] transformExcelToJSON(byte[] data) {
 		log.info("Starting method Excel to JSON");
-//		Replaces for path to be InputStream friendly
-		data = data.replace("\\\\", "\\");
-		data = data.replace("\"", "");
-		data = data.replace("\\", "/");
-//		String to store final data
-		String dataUnformated = "";
-		log.info("Final URL" + dataUnformated);
 
-
-		try (FileInputStream excelData = new FileInputStream(data)) {
-//			FileInputStream excelData = new FileInputStream(data)
-//			InputStream newData = new ByteArrayInputStream(data.getBytes());
+		try (InputStream excelData = new ByteArrayInputStream(data)) {
 //			Create the workbook Object to work with the ByteArrayInputStream data
 
-			XSSFWorkbook workbook = new XSSFWorkbook (excelData);
+			XSSFWorkbook workbook = new XSSFWorkbook(excelData);
 
 			int totalSheetNumber = workbook.getNumberOfSheets();
 
@@ -145,30 +127,29 @@ public class ReportingServiceImpl implements ReportingService {
 				List<List<String>> currentSheetData = getSheetDataList(sheet);
 
 //				Generate String with JSON Format
-//				finalData = getStringFromList(currentSheetData).getBytes();
-				dataUnformated = getStringFromList(currentSheetData);
+				finalData = getStringFromList(currentSheetData).getBytes();
 			}
 			workbook.close();
-			
+
 		} catch (IOException e) {
 			throw new ExceptionPath("Error while reading data from the String received: " + e.getMessage());
 		}
 //		JSON data return
-//		return finalData;
-		log.info("FINAL DATA:  " + dataUnformated);
-		return dataUnformated;
+		return finalData;
+
 	}
 
+//	Function to run through the Data of the Excel sheet and extract it, it helps using the getStringFromList functions
 	private static List<List<String>> getSheetDataList(Sheet sheet) {
 
 		List<List<String>> dataFromSheet = new ArrayList<List<String>>();
 		int firstRowNum = sheet.getFirstRowNum();
-		log.info("Number of Rows : "  + firstRowNum);
+		log.info("Number of Rows : " + firstRowNum);
 		int lastRowNum = sheet.getLastRowNum();
-		log.info("Number of Rows : "  + lastRowNum);
+		log.info("Number of Rows : " + lastRowNum);
 
 		if (lastRowNum >= 0) {
-			for (int index = firstRowNum; index <= lastRowNum ; index++) {
+			for (int index = firstRowNum; index <= lastRowNum; index++) {
 
 				List<String> rowDataList = new ArrayList<String>();
 				Row currentRow = sheet.getRow(index);
@@ -195,27 +176,26 @@ public class ReportingServiceImpl implements ReportingService {
 		strBfr.append("[");
 
 		if (dataString != null) {
-			// Getting the headers
+//			 Getting the headers
 			List<String> headers = dataString.get(0);
-			// Looping through every each data column
+//			 Looping through every each data column
 			for (int index = 1; index < dataString.size(); index++) {
 				strBfr.append("{");
 				for (int columnData = 0; columnData < headers.size(); columnData++) {
-					// Assigning headers for each Node
-					strBfr.append("\"" + headers.get(columnData) + "\":");
-					// Assigning data for each node considering if it's the last data node
+//					 Assigning headers for each Node
+					strBfr.append("\'" + headers.get(columnData) + "\':");
+//					 Assigning data for each node considering if it's the last data node
 					if (columnData == dataString.get(index).size() - 1) {
-						log.info(" " + dataString.get(index).size());
-						strBfr.append("\"" + dataString.get(index).get(columnData) + "\"\n");
+//						log.info(" " + dataString.get(index).size());
+						strBfr.append("\'" + dataString.get(index).get(columnData) + "\'\n");
 					} else
-						strBfr.append("\"" + dataString.get(index).get(columnData) + "\", \n");
+						strBfr.append("\'" + dataString.get(index).get(columnData) + "\', \n");
 				}
 				if (index == dataString.size() - 1) {
 					strBfr.append("}");
 				} else
 					strBfr.append("},");
 			}
-
 		}
 		strBfr.append("]");
 		return strBfr.toString();

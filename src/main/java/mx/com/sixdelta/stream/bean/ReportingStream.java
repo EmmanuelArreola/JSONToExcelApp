@@ -27,7 +27,7 @@ public class ReportingStream{
 	@Bean
 	public Function<Message<?>, byte[]> reportingService() throws ExceptionPath {
 		return payload ->  {
-			byte[] data = new String("data").getBytes(); 
+			byte[] data = new String("No supported option").getBytes(); 
 //			Starting main transforming method
 			ReportingService reporter = new ReportingServiceImpl();
 			log.info("\"/**************Report Start***************\"");
@@ -35,9 +35,9 @@ public class ReportingStream{
 			if(reportingProperties.getTransformTo().equals(JsonToExcelValue)){
 				return reporter.transformJSONtoExcel(new String((byte[])payload.getPayload()), reportingProperties.getSheetName());
 			}
-//			else if(reportingProperties.getTransformTo().equals(ExcelToJsonValue)) {
-//				return reporter.transformExcelToJSON((byte[])payload.getPayload());
-//			}
+			else if(reportingProperties.getTransformTo().equals(ExcelToJsonValue)) {
+				return reporter.transformExcelToJSON((byte[])payload.getPayload());
+			}
 			else {
 				return data;
 			}

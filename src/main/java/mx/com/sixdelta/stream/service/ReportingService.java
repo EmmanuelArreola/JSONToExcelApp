@@ -20,7 +20,7 @@ public interface ReportingService {
 	 * @param documentName: name for the document given by the user
 	 * @return return the data transformed into data for EXCEL
 	 */
-//	public byte[] transformExcelToJSON(byte[] data);
+	public byte[] transformExcelToJSON(byte[] data);
 	
-	public String transformExcelToJSON(String data);
+//	public String transformExcelToJSON(String data);
 }
